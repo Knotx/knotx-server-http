@@ -72,6 +72,6 @@ steps:
       tasks: 'build-docker'
     displayName: "Build Starter Kit: Docker"
   - script: |
-      $(workspaceDir)/$(targetRepository)/gradlew -p $(workspaceDir)/$(targetRepository) clean test jacocoTestReport
-      bash <(curl -s https://codecov.io/bash) -s $(workspaceDir)/$(targetRepository) -t $(CODECOV_TOKEN)
-    displayName: "Run Codecov inspection"
+      $(workspaceDir)/$(Build.Repository.Name)/gradlew -p $(workspaceDir)/$(Build.Repository.Name) clean test jacocoTestReport
+      bash <(curl -s https://codecov.io/bash) -s $(workspaceDir)/$(Build.Repository.Name) -t $(CODECOV_TOKEN)
+    displayName: "Run Codecov inspection for $(Build.Repository.Name)"
