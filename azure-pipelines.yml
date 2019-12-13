@@ -40,7 +40,7 @@ steps:
   - task: Maven@3
     inputs:
       mavenPomFile: '$(workspaceDir)/knotx-dependencies/pom.xml'
-      goals: 'package'
+      goals: 'install'
     displayName: "Build Dependencies"
   - task: Gradle@2
     inputs:
