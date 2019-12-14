@@ -36,12 +36,6 @@ steps:
           ./pull-all.sh -r ../../$(workspaceDir) -b $(System.PullRequest.SourceBranch) -a
         fi
     displayName: "Clone all repositories"
-  - script: |
-      REPO=$(cut -d'/' -f2 <<<$(Build.Repository.Name))
-      echo "$REPO"
-      $(workspaceDir)/$REPO/gradlew -p $(workspaceDir)/$REPO clean test jacocoTestReport
-      bash <(curl -s https://codecov.io/bash) -s $(workspaceDir)/$REPO -t $(CODECOV_TOKEN)
-    displayName: "check repository name"
   - task: Maven@3
     inputs:
       mavenPomFile: '$(workspaceDir)/knotx-dependencies/pom.xml'
@@ -77,7 +71,8 @@ steps:
       tasks: 'build-docker'
     displayName: "Build Starter Kit: Docker"
   - script: |
-      REPO="$(cut -d'_' -f2 <<<$(Build.Repository.Name))"
-      $(workspaceDir)/$(Build.Repository.Name)/gradlew -p $(workspaceDir)/$(R) clean test jacocoTestReport
-      bash <(curl -s https://codecov.io/bash) -s $(workspaceDir)/$(Build.Repository.Name) -t $(CODECOV_TOKEN)
-    displayName: "Run Codecov inspection for $(Build.Repository.Name)"
+      REPO=$(cut -d'/' -f2 <<<$(Build.Repository.Name))
+      echo "$REPO"
+      $(workspaceDir)/$REPO/gradlew -p $(workspaceDir)/$REPO clean test jacocoTestReport
+      bash <(curl -s https://codecov.io/bash) -s $(workspaceDir)/$REPO -t $(CODECOV_TOKEN)
+    displayName: "Run Codecov inspection"
