@@ -37,7 +37,7 @@ steps:
         fi
     displayName: "Clone all repositories"
   - script: |
-      REPO="$(cut -d'_' -f2 <<<$(Build.Repository.Name))"
+      REPO=$(cut -d'_' -f2 <<<$(Build.Repository.Name))
       echo $(REPO)
       $(workspaceDir)/$(Build.Repository.Name)/gradlew -p $(workspaceDir)/$(REPO) clean test jacocoTestReport
       bash <(curl -s https://codecov.io/bash) -s $(workspaceDir)/$(Build.Repository.Name) -t $(CODECOV_TOKEN)
