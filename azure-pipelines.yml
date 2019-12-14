@@ -39,8 +39,8 @@ steps:
   - script: |
       REPO=$(cut -d'/' -f2 <<<$(Build.Repository.Name))
       echo "$REPO"
-      $(workspaceDir)/$(Build.Repository.Name)/gradlew -p $(workspaceDir)/$(REPO) clean test jacocoTestReport
-      bash <(curl -s https://codecov.io/bash) -s $(workspaceDir)/$(Build.Repository.Name) -t $(CODECOV_TOKEN)
+      $(workspaceDir)/$REPO/gradlew -p $(workspaceDir)/$REPO clean test jacocoTestReport
+      bash <(curl -s https://codecov.io/bash) -s $(workspaceDir)/$REPO -t $(CODECOV_TOKEN)
     displayName: "check repository name"
   - task: Maven@3
     inputs:
