@@ -1,7 +1,7 @@
 [![Build Status](https://dev.azure.com/knotx/Knotx/_apis/build/status/Knotx.knotx-server-http?branchName=master)](https://dev.azure.com/knotx/Knotx/_build/latest?definitionId=8&branchName=master)
 [![CodeFactor](https://www.codefactor.io/repository/github/knotx/knotx-server-http/badge)](https://www.codefactor.io/repository/github/knotx/knotx-server-http)
 [![codecov](https://codecov.io/gh/Knotx/knotx-server-http/branch/master/graph/badge.svg)](https://codecov.io/gh/Knotx/knotx-server-http)
-
+[![Gradle Status](https://gradleupdate.appspot.com/Knotx/knotx-server-http/status.svg)](https://gradleupdate.appspot.com/Knotx/knotx-server-http/status)
 
 # Knot.x HTTP Server
 Server is essentially a "heart" of Knot.x. It's scalable (vertically and horizontally), 
