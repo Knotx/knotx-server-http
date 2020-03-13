@@ -21,6 +21,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,12 +38,19 @@ public final class PlaceholdersResolver {
   }
 
   public static String resolve(String stringWithPlaceholders, SourceDefinitions sources) {
+    return resolveAndEncode(stringWithPlaceholders, sources, UnaryOperator.identity());
+  }
 
+  public static String resolveAndEncode(String stringWithPlaceholders, SourceDefinitions sources) {
+    return resolveAndEncode(stringWithPlaceholders, sources, PlaceholdersResolver::encodeValue);
+  }
+
+  private static String resolveAndEncode(String stringWithPlaceholders, SourceDefinitions sources, UnaryOperator<String> encoding) {
     String resolved = stringWithPlaceholders;
     List<String> allPlaceholders = getPlaceholders(stringWithPlaceholders);
 
     for (SourceDefinition sourceDefinition : sources.getSourceDefinitions()) {
-      resolved = resolve(resolved, allPlaceholders, sourceDefinition);
+      resolved = resolveAndEncode(resolved, allPlaceholders, sourceDefinition, encoding);
     }
 
     resolved = clearUnresolved(resolved);
@@ -50,12 +58,12 @@ public final class PlaceholdersResolver {
     return resolved;
   }
 
-  private static <T> String resolve(String resolved, List<String> allPlaceholders,
-      SourceDefinition<T> sourceDefinition) {
+  private static <T> String resolveAndEncode(String resolved, List<String> allPlaceholders,
+      SourceDefinition<T> sourceDefinition, UnaryOperator<String> encoding) {
     List<String> placeholders = sourceDefinition.getPlaceholdersForSource(allPlaceholders);
     for (String placeholder : placeholders) {
       resolved = replace(resolved, placeholder,
-          getPlaceholderValue(sourceDefinition, placeholder));
+          getPlaceholderValue(sourceDefinition, placeholder), encoding);
     }
     return resolved;
   }
@@ -63,17 +71,20 @@ public final class PlaceholdersResolver {
   private static String clearUnresolved(String resolved) {
     List<String> unresolved = getPlaceholders(resolved);
 
-    for (String unreslvedPlaceholder : unresolved) {
-      resolved = replace(resolved, unreslvedPlaceholder, "");
+    for (String unresolvedPlaceholder : unresolved) {
+      resolved = replace(resolved, unresolvedPlaceholder, "");
     }
     return resolved;
   }
 
-  private static String replace(String resolved, String placeholder, String value) {
-    return resolved.replace("{" + placeholder + "}",
-        encodeValue(value));
+  private static String replace(String resolved, String placeholder, String value,
+      UnaryOperator<String> encoding) {
+    return replace(resolved, placeholder, encoding.apply(value));
   }
 
+  private static String replace(String resolved, String placeholder, String value) {
+    return resolved.replace("{" + placeholder + "}", value);
+  }
 
   protected static List<String> getPlaceholders(String serviceUri) {
     return Arrays.stream(serviceUri.split("\\{"))

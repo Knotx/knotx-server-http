@@ -25,6 +25,8 @@ This module contains client request placeholders substitutors.
     }
     ```
 
-All placeholders are always substituted with encoded values according to the RFC standard. However, there are two exceptions:
+`PlaceholdersResolver` provides two methods for performing substitution: `resolve` which performs a direct substitution, and `resolveAndEncode` which also performs encoding.
+
+When calling `resolveAndEncode`, all placeholders are substituted with encoded values according to the RFC standard. However, there are two exceptions:
 - Space character is substituted by `%20` instead of `+`.
 - Slash character `/` remains as it is.

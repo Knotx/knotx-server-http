@@ -15,22 +15,25 @@
  */
 package io.knotx.server.common.placeholders;
 
+import io.knotx.server.api.context.ClientRequest;
+import io.vertx.reactivex.core.MultiMap;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import io.knotx.server.api.context.ClientRequest;
-import io.vertx.reactivex.core.MultiMap;
+class PlaceholdersResolverReplaceTest {
 
-public class PlaceholdersResolverReplaceTest {
+  private static final String STRING_WITH_SPECIAL_CHARS = "Q@T(#&SGESOGJW$*T#)WIGoiw4yh902j";
+  private static final String ESCAPED_STRING_WITH_SPECIAL_CHARS = "Q%40T%28%23%26SGESOGJW%24*T%23%29WIGoiw4yh902j";
 
   /**
    * Data source for following test
    */
-  public static Stream<Arguments> data() {
+  static Stream<Arguments> data() {
     return Stream.of(
         // SLING URI DECOMPOSITION
         // path
@@ -100,7 +103,7 @@ public class PlaceholdersResolverReplaceTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @MethodSource("data")
-  public void getServiceUri_whenGivenUriWithPlaceholdersAndMockedRequest_expectPlaceholdersSubstitutedWithValues(
+  void getServiceUri_whenGivenUriWithPlaceholdersAndMockedRequest_expectPlaceholdersSubstitutedWithValues(
       String servicePath, String requestedUri, String expectedUri) {
     ClientRequest httpRequest = new ClientRequest().setHeaders(getHeadersMultiMap())
         .setParams(getParamsMultiMap())
@@ -109,8 +112,36 @@ public class PlaceholdersResolverReplaceTest {
     SourceDefinitions sourceDefinitions = SourceDefinitions.builder()
         .addClientRequestSource(httpRequest)
         .build();
-    String finalUri = PlaceholdersResolver.resolve(servicePath, sourceDefinitions);
+    String finalUri = PlaceholdersResolver.resolveAndEncode(servicePath, sourceDefinitions);
 
     Assertions.assertEquals(expectedUri, finalUri);
+  }
+
+  @Test
+  @DisplayName("Expect escaped value to be populated for the placeholder")
+  void resolveAndEncode() {
+    String finalUri = PlaceholdersResolver
+        .resolveAndEncode("{param.special}", sourceWithParam(STRING_WITH_SPECIAL_CHARS));
+
+    Assertions.assertEquals(ESCAPED_STRING_WITH_SPECIAL_CHARS, finalUri);
+  }
+
+  @Test
+  @DisplayName("Expect value to be populated for the placeholder but not escaped")
+  void resolveAndDoNotEncode() {
+    String finalUri = PlaceholdersResolver
+        .resolve("{param.special}", sourceWithParam(STRING_WITH_SPECIAL_CHARS));
+
+    Assertions.assertEquals(STRING_WITH_SPECIAL_CHARS, finalUri);
+  }
+
+  private SourceDefinitions sourceWithParam(String value) {
+    ClientRequest httpRequest = new ClientRequest().setHeaders(getHeadersMultiMap())
+        .setParams(getParamsMultiMap().add("special", value))
+        .setPath("/test/");
+
+    return SourceDefinitions.builder()
+        .addClientRequestSource(httpRequest)
+        .build();
   }
 }
