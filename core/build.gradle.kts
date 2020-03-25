@@ -22,7 +22,7 @@ plugins {
     id("io.knotx.unit-test")
     id("io.knotx.maven-publish")
     id("io.knotx.jacoco")
-    id("org.nosphere.apache.rat") version "0.6.0"
+    id("org.nosphere.apache.rat")
 }
 
 dependencies {
@@ -42,6 +42,7 @@ dependencies {
     testImplementation(group = "io.vertx", name = "vertx-auth-jwt")
     testImplementation(group = "io.vertx", name = "vertx-auth-shiro")
 
+    testImplementation("io.knotx:knotx-junit5:${project.version}")
     testImplementation("io.knotx:knotx-launcher:${project.version}")
     testImplementation(group = "org.mockito", name = "mockito-core")
     testImplementation(group = "org.mockito", name = "mockito-junit-jupiter")

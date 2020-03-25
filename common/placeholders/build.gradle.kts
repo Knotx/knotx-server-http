@@ -21,8 +21,7 @@ plugins {
     id("io.knotx.unit-test")
     id("io.knotx.maven-publish")
     id("io.knotx.jacoco")
-
-    id("org.nosphere.apache.rat") version "0.6.0"
+    id("org.nosphere.apache.rat")
 }
 
 // -----------------------------------------------------------------------------
@@ -35,6 +34,7 @@ dependencies {
     implementation(group = "org.apache.commons", name = "commons-lang3")
     implementation(group = "com.google.guava", name = "guava")
 
+    testImplementation("io.knotx:knotx-junit5:${project.version}")
     implementation(group = "io.vertx", name = "vertx-core")
     implementation(group = "io.vertx", name = "vertx-rx-java2")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
