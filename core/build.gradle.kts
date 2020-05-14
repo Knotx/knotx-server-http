@@ -20,12 +20,14 @@ plugins {
     id("io.knotx.codegen")
     id("io.knotx.codegen-test")
     id("io.knotx.unit-test")
-    id("io.knotx.maven-publish")
     id("io.knotx.jacoco")
+    id("io.knotx.maven-publish")
     id("org.nosphere.apache.rat")
 }
 
 dependencies {
+    annotationProcessor(platform("io.knotx:knotx-dependencies:${project.version}"))
+
     implementation(platform("io.knotx:knotx-dependencies:${project.version}"))
 
     api(project(":knotx-server-http-api"))
@@ -42,6 +44,7 @@ dependencies {
     testImplementation(group = "io.vertx", name = "vertx-auth-jwt")
     testImplementation(group = "io.vertx", name = "vertx-auth-shiro")
 
+    testAnnotationProcessor(platform("io.knotx:knotx-dependencies:${project.version}"))
     testImplementation("io.knotx:knotx-junit5:${project.version}")
     testImplementation("io.knotx:knotx-launcher:${project.version}")
     testImplementation(group = "org.mockito", name = "mockito-core")
