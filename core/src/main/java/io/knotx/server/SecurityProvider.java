@@ -21,6 +21,7 @@ import io.knotx.server.exceptions.ConfigurationException;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.reactivex.core.Vertx;
+import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +36,16 @@ class SecurityProvider {
   private final Vertx vertx;
   private final List<AuthHandlerOptions> securityHandlers;
 
+  private Map<String, AuthHandlerFactory> authHandlerFactoriesByName;
+
   SecurityProvider(Vertx vertx,
       List<AuthHandlerOptions> securityHandlers) {
     this.vertx = vertx;
     this.securityHandlers = securityHandlers;
+    this.authHandlerFactoriesByName = loadAuthHandlerFactories();
   }
 
   void configureSecurity(OpenAPI3RouterFactory routerFactory) {
-    final Map<String, AuthHandlerFactory> authHandlerFactoriesByName = loadAuthHandlerFactories();
     securityHandlers.forEach(options -> {
       registerAuthHandler(routerFactory,
           authHandlerFactoriesByName.get(options.getFactory()), options);
@@ -51,6 +54,10 @@ class SecurityProvider {
         LOGGER.debug("Auth handler initialization details [{}]", options.toJson().encodePrettily());
       }
     });
+  }
+
+  void registerCustomRoutings(Router router) {
+    authHandlerFactoriesByName.values().forEach(authHandlerFactory -> authHandlerFactory.registerCustomRoute(router));
   }
 
   private void registerAuthHandler(OpenAPI3RouterFactory routerFactory,

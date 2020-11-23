@@ -17,6 +17,7 @@ package io.knotx.server.api.security;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.Vertx;
+import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.handler.AuthHandler;
 
 /**
@@ -37,5 +38,12 @@ public interface AuthHandlerFactory {
    * @return handler instance
    */
   AuthHandler create(Vertx vertx, JsonObject config);
+
+  /**
+   * Register custom routing required by AuthHandler
+   * @param router
+   */
+  default void registerCustomRoute(Router router) {
+  }
 
 }

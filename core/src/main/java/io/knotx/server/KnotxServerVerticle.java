@@ -62,6 +62,7 @@ public class KnotxServerVerticle extends AbstractVerticle {
         .map(OpenAPI3RouterFactory::getRouter)
         .doOnSuccess(this::addHystrixMetrics)
         .doOnSuccess(this::logRouterRoutes)
+        .doOnSuccess(securityProvider::registerCustomRoutings)
         .flatMap(httpServerProvider::configureHttpServer)
         .subscribe(
             ok -> {
