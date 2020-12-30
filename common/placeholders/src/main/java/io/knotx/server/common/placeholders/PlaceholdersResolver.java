@@ -15,6 +15,8 @@
  */
 package io.knotx.server.common.placeholders;
 
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.UnsupportedCharsetException;
@@ -23,47 +25,61 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
-
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 public final class PlaceholdersResolver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PlaceholdersResolver.class);
 
-  private PlaceholdersResolver() {
-    // util
+  private final SourceDefinitions sources;
+  private final UnaryOperator<String> valueEncoding;
+  private final boolean clearUnresolved;
+
+  public PlaceholdersResolver(SourceDefinitions sources,
+      UnaryOperator<String> valueEncoding, boolean clearUnresolved) {
+    this.sources = sources;
+    this.valueEncoding = valueEncoding;
+    this.clearUnresolved = clearUnresolved;
+  }
+
+  public PlaceholdersResolver(SourceDefinitions sources, UnaryOperator<String> valueEncoding) {
+    this(sources, valueEncoding, true);
+  }
+
+  public PlaceholdersResolver(SourceDefinitions sources) {
+    this(sources, UnaryOperator.identity(), true);
   }
 
   public static String resolve(String stringWithPlaceholders, SourceDefinitions sources) {
-    return resolveAndEncode(stringWithPlaceholders, sources, UnaryOperator.identity());
+    return new PlaceholdersResolver(sources).resolveAndEncodeInternal(stringWithPlaceholders);
   }
 
   public static String resolveAndEncode(String stringWithPlaceholders, SourceDefinitions sources) {
-    return resolveAndEncode(stringWithPlaceholders, sources, PlaceholdersResolver::encodeValue);
+    return new PlaceholdersResolver(sources, PlaceholdersResolver::encodeValue)
+        .resolveAndEncodeInternal(stringWithPlaceholders);
   }
 
-  private static String resolveAndEncode(String stringWithPlaceholders, SourceDefinitions sources, UnaryOperator<String> encoding) {
+  private String resolveAndEncodeInternal(String stringWithPlaceholders) {
     String resolved = stringWithPlaceholders;
     List<String> allPlaceholders = getPlaceholders(stringWithPlaceholders);
 
     for (SourceDefinition sourceDefinition : sources.getSourceDefinitions()) {
-      resolved = resolveAndEncode(resolved, allPlaceholders, sourceDefinition, encoding);
+      resolved = resolveAndEncode(resolved, allPlaceholders, sourceDefinition);
     }
 
-    resolved = clearUnresolved(resolved);
+    if (clearUnresolved) {
+      resolved = clearUnresolved(resolved);
+    }
 
     return resolved;
   }
 
-  private static <T> String resolveAndEncode(String resolved, List<String> allPlaceholders,
-      SourceDefinition<T> sourceDefinition, UnaryOperator<String> encoding) {
+  private <T> String resolveAndEncode(String resolved, List<String> allPlaceholders,
+      SourceDefinition<T> sourceDefinition) {
     List<String> placeholders = sourceDefinition.getPlaceholdersForSource(allPlaceholders);
     for (String placeholder : placeholders) {
-      resolved = replace(resolved, placeholder,
-          getPlaceholderValue(sourceDefinition, placeholder), encoding);
+      resolved = replaceAndEncode(resolved, placeholder,
+          getPlaceholderValue(sourceDefinition, placeholder));
     }
     return resolved;
   }
@@ -77,9 +93,8 @@ public final class PlaceholdersResolver {
     return resolved;
   }
 
-  private static String replace(String resolved, String placeholder, String value,
-      UnaryOperator<String> encoding) {
-    return replace(resolved, placeholder, encoding.apply(value));
+  private String replaceAndEncode(String resolved, String placeholder, String value) {
+    return replace(resolved, placeholder, valueEncoding.apply(value));
   }
 
   private static String replace(String resolved, String placeholder, String value) {

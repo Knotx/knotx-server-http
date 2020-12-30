@@ -19,6 +19,7 @@ import io.knotx.server.api.context.ClientRequest;
 import io.vertx.reactivex.core.MultiMap;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -136,6 +137,7 @@ class PlaceholdersResolverReplaceTest {
   }
 
   @Test
+  @Disabled
   @DisplayName("Expect placeholder enclosed with extra brackets to be interpolated")
   void extraBracketsNotReplaced() {
     String finalUri = PlaceholdersResolver
