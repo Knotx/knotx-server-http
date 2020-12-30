@@ -144,19 +144,27 @@ class PlaceholdersResolverReplaceTest {
   @Test
   @DisplayName("Expect placeholder enclosed with extra brackets to be interpolated")
   void extraBracketsNotReplaced() {
-    String finalUri = PlaceholdersResolver
-        .createEncodingAndSkippingUnmatched(sourceWithParam("test"))
+    String finalUri = resolverEncodingAndSkippingUnmatched(sourceWithParam("test"))
         .resolve("{\"json-key\": \"{param.special}\"}");
 
     Assertions.assertEquals("{\"json-key\": \"test\"}", finalUri);
   }
 
   @Test
+  @DisplayName("Expect no substitution of an already substituted value")
+  void noDoubleSubstitution() {
+    String finalUri = PlaceholdersResolver
+        .create(sourceWithParam("{this.was.substituted}"))
+        .resolve("{\"json-key\": \"{param.special}\"}");
+
+    Assertions.assertEquals("{\"json-key\": \"{this.was.substituted}\"}", finalUri);
+  }
+
+  @Test
   @DisplayName("Expect not populated placeholder (but matched to a source) to be removed")
   void removeNotPopulatedPlaceholder() {
     final String notMatchedPlaceholder = "{param.notPopulated}";
-    String finalUri = PlaceholdersResolver
-        .createEncodingAndSkippingUnmatched(sourceWithParam("test"))
+    String finalUri = resolverEncodingAndSkippingUnmatched(sourceWithParam("test"))
         .resolve(notMatchedPlaceholder);
 
     Assertions.assertEquals("", finalUri);
@@ -177,8 +185,7 @@ class PlaceholdersResolverReplaceTest {
   @DisplayName("Expect unmatched placeholders to be left as-is if option configured")
   void leaveUnresolvedPlaceholders() {
     final String notMatchedPlaceholder = "{notMatchedParam}";
-    String finalUri = PlaceholdersResolver
-        .createEncodingAndSkippingUnmatched(sourceWithParam("test"))
+    String finalUri = resolverEncodingAndSkippingUnmatched(sourceWithParam("test"))
         .resolve(notMatchedPlaceholder);
 
     Assertions.assertEquals(notMatchedPlaceholder, finalUri);
@@ -191,6 +198,14 @@ class PlaceholdersResolverReplaceTest {
 
     return SourceDefinitions.builder()
         .addClientRequestSource(httpRequest)
+        .build();
+  }
+
+  private PlaceholdersResolver resolverEncodingAndSkippingUnmatched(SourceDefinitions sources) {
+    return PlaceholdersResolver.builder()
+        .withSources(sources)
+        .encodeValues()
+        .leaveUnmatched()
         .build();
   }
 }

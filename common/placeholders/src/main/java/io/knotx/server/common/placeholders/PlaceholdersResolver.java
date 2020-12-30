@@ -26,8 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class PlaceholdersResolver {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PlaceholdersResolver.class);
-
   private final SourceDefinitions sources;
   private final UnaryOperator<String> valueEncoding;
   private final boolean clearUnmatched;
@@ -39,7 +37,7 @@ public final class PlaceholdersResolver {
     this.clearUnmatched = clearUnmatched;
   }
 
-  private static Builder builder() {
+  public static Builder builder() {
     return new Builder();
   }
 
@@ -56,32 +54,25 @@ public final class PlaceholdersResolver {
         .build();
   }
 
-  public static PlaceholdersResolver createEncodingAndSkippingUnmatched(SourceDefinitions sources) {
-    return builder()
-        .withSources(sources)
-        .encodeValues()
-        .leaveUnmatched()
-        .build();
-  }
-
   public String resolve(String stringWithPlaceholders) {
     String resolved = stringWithPlaceholders;
     List<String> allPlaceholders = getPlaceholders(stringWithPlaceholders);
 
     for (SourceDefinition sourceDefinition : sources.getSourceDefinitions()) {
-      resolved = resolveAndEncode(resolved, allPlaceholders, sourceDefinition);
+      List<String> placeholders = sourceDefinition.getPlaceholdersForSource(allPlaceholders);
+      resolved = resolveAndEncode(resolved, placeholders, sourceDefinition);
+      allPlaceholders.removeAll(placeholders);
     }
 
     if (clearUnmatched) {
-      resolved = clearUnmatched(resolved);
+      resolved = clearUnmatched(resolved, allPlaceholders);
     }
 
     return resolved;
   }
 
-  private <T> String resolveAndEncode(String resolved, List<String> allPlaceholders,
+  private <T> String resolveAndEncode(String resolved, List<String> placeholders,
       SourceDefinition<T> sourceDefinition) {
-    List<String> placeholders = sourceDefinition.getPlaceholdersForSource(allPlaceholders);
     for (String placeholder : placeholders) {
       resolved = replaceAndEncode(resolved, placeholder,
           getPlaceholderValue(sourceDefinition, placeholder));
@@ -89,11 +80,11 @@ public final class PlaceholdersResolver {
     return resolved;
   }
 
-  private static String clearUnmatched(String resolved) {
-    List<String> unresolved = getPlaceholders(resolved);
+  private static String clearUnmatched(String resolved,
+      List<String> placeholdersLeft) {
 
-    for (String unresolvedPlaceholder : unresolved) {
-      resolved = replace(resolved, unresolvedPlaceholder, "");
+    for (String unmatchedPlaceholder : placeholdersLeft) {
+      resolved = replace(resolved, unmatchedPlaceholder, "");
     }
     return resolved;
   }
