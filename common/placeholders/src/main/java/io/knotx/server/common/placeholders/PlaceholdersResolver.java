@@ -42,25 +42,41 @@ public final class PlaceholdersResolver {
     this.clearUnmatched = clearUnmatched;
   }
 
-  public PlaceholdersResolver(SourceDefinitions sources, UnaryOperator<String> valueEncoding) {
-    this(sources, valueEncoding, true);
+  private static Builder builder() {
+    return new Builder();
   }
 
-  public PlaceholdersResolver(SourceDefinitions sources) {
-    this(sources, UnaryOperator.identity(), true);
+  public static PlaceholdersResolver create(SourceDefinitions sources) {
+    return builder()
+        .withSources(sources)
+        .build();
+  }
+
+  public static PlaceholdersResolver createEncoding(SourceDefinitions sources) {
+    return builder()
+        .withSources(sources)
+        .encodeValues()
+        .build();
+  }
+
+  public static PlaceholdersResolver createEncodingAndSkippingUnmatched(SourceDefinitions sources) {
+    return builder()
+        .withSources(sources)
+        .encodeValues()
+        .leaveUnmatched()
+        .build();
   }
 
   public static String resolveSkipUnmatched(String stringWithPlaceholders, SourceDefinitions sources) {
-    return new PlaceholdersResolver(sources, UnaryOperator.identity(), false).resolveAndEncodeInternal(stringWithPlaceholders);
+    return createEncodingAndSkippingUnmatched(sources).resolveAndEncodeInternal(stringWithPlaceholders);
   }
 
   public static String resolve(String stringWithPlaceholders, SourceDefinitions sources) {
-    return new PlaceholdersResolver(sources).resolveAndEncodeInternal(stringWithPlaceholders);
+    return create(sources).resolveAndEncodeInternal(stringWithPlaceholders);
   }
 
   public static String resolveAndEncode(String stringWithPlaceholders, SourceDefinitions sources) {
-    return new PlaceholdersResolver(sources, PlaceholdersResolver::encodeValue)
-        .resolveAndEncodeInternal(stringWithPlaceholders);
+    return createEncoding(sources).resolveAndEncodeInternal(stringWithPlaceholders);
   }
 
   private String resolveAndEncodeInternal(String stringWithPlaceholders) {
@@ -122,14 +138,33 @@ public final class PlaceholdersResolver {
         .orElse("");
   }
 
-  private static String encodeValue(String value) {
-    try {
-      return URLEncoder.encode(value, "UTF-8")
-          .replace("+", "%20")
-          .replace("%2F", "/");
-    } catch (UnsupportedEncodingException ex) {
-      LOGGER.fatal("Unexpected Exception - Unsupported encoding UTF-8", ex);
-      throw new UnsupportedCharsetException("UTF-8");
+  static final class Builder {
+    private SourceDefinitions sources;
+    private UnaryOperator<String> valueEncoding = UnaryOperator.identity();
+    private boolean clearUnmatched = true;
+
+    Builder withSources(SourceDefinitions sources) {
+      this.sources = sources;
+      return this;
     }
+
+    Builder encodeValues() {
+      valueEncoding = Encoder::encode;
+      return this;
+    }
+
+    Builder leaveUnmatched() {
+      clearUnmatched = false;
+      return this;
+    }
+
+    PlaceholdersResolver build() {
+      if (sources == null) {
+        throw new IllegalStateException("Attempted to build PlaceholderResolver without setting sources");
+      }
+      return new PlaceholdersResolver(sources, valueEncoding, clearUnmatched);
+    }
+
   }
+
 }
