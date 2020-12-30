@@ -135,6 +135,15 @@ class PlaceholdersResolverReplaceTest {
     Assertions.assertEquals(STRING_WITH_SPECIAL_CHARS, finalUri);
   }
 
+  @Test
+  @DisplayName("Expect placeholder enclosed with extra brackets to be interpolated")
+  void extraBracketsNotReplaced() {
+    String finalUri = PlaceholdersResolver
+        .resolve("{\"json-key\": \"{param.special}\"}", sourceWithParam("test"));
+
+    Assertions.assertEquals("{\"json-key\": \"test\"}", finalUri);
+  }
+
   private SourceDefinitions sourceWithParam(String value) {
     ClientRequest httpRequest = new ClientRequest().setHeaders(getHeadersMultiMap())
         .setParams(getParamsMultiMap().add("special", value))
