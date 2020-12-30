@@ -64,10 +64,6 @@ public final class PlaceholdersResolver {
         .build();
   }
 
-  public static String resolveSkipUnmatched(String stringWithPlaceholders, SourceDefinitions sources) {
-    return createEncodingAndSkippingUnmatched(sources).resolve(stringWithPlaceholders);
-  }
-
   public String resolve(String stringWithPlaceholders) {
     String resolved = stringWithPlaceholders;
     List<String> allPlaceholders = getPlaceholders(stringWithPlaceholders);

@@ -142,11 +142,10 @@ class PlaceholdersResolverReplaceTest {
   }
 
   @Test
-  @Disabled
   @DisplayName("Expect placeholder enclosed with extra brackets to be interpolated")
   void extraBracketsNotReplaced() {
     String finalUri = PlaceholdersResolver
-        .create(sourceWithParam("test"))
+        .createEncodingAndSkippingUnmatched(sourceWithParam("test"))
         .resolve("{\"json-key\": \"{param.special}\"}");
 
     Assertions.assertEquals("{\"json-key\": \"test\"}", finalUri);
