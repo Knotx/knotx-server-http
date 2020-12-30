@@ -146,6 +146,33 @@ class PlaceholdersResolverReplaceTest {
     Assertions.assertEquals("{\"json-key\": \"test\"}", finalUri);
   }
 
+  @Test
+  @DisplayName("Expect not populated placeholder (but matched to a source) to be removed")
+  void removeNotPopulatedPlaceholder() {
+    final String notMatchedPlaceholder = "{param.notPopulated}";
+    String finalUri = PlaceholdersResolver.resolveSkipUnmatched(notMatchedPlaceholder, sourceWithParam("test"));
+
+    Assertions.assertEquals("", finalUri);
+  }
+
+  @Test
+  @DisplayName("Expect unmatched placeholders to be removed by default")
+  void removeUnmatchedPlaceholder() {
+    final String notMatchedPlaceholder = "{notMatchedParam}";
+    String finalUri = PlaceholdersResolver.resolve(notMatchedPlaceholder, sourceWithParam("test"));
+
+    Assertions.assertEquals("", finalUri);
+  }
+
+  @Test
+  @DisplayName("Expect unmatched placeholders to be left as-is if option configured")
+  void leaveUnresolvedPlaceholders() {
+    final String notMatchedPlaceholder = "{notMatchedParam}";
+    String finalUri = PlaceholdersResolver.resolveSkipUnmatched(notMatchedPlaceholder, sourceWithParam("test"));
+
+    Assertions.assertEquals(notMatchedPlaceholder, finalUri);
+  }
+
   private SourceDefinitions sourceWithParam(String value) {
     ClientRequest httpRequest = new ClientRequest().setHeaders(getHeadersMultiMap())
         .setParams(getParamsMultiMap().add("special", value))

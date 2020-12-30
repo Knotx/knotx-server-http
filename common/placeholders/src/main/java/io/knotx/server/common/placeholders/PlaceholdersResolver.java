@@ -33,13 +33,13 @@ public final class PlaceholdersResolver {
 
   private final SourceDefinitions sources;
   private final UnaryOperator<String> valueEncoding;
-  private final boolean clearUnresolved;
+  private final boolean clearUnmatched;
 
   public PlaceholdersResolver(SourceDefinitions sources,
-      UnaryOperator<String> valueEncoding, boolean clearUnresolved) {
+      UnaryOperator<String> valueEncoding, boolean clearUnmatched) {
     this.sources = sources;
     this.valueEncoding = valueEncoding;
-    this.clearUnresolved = clearUnresolved;
+    this.clearUnmatched = clearUnmatched;
   }
 
   public PlaceholdersResolver(SourceDefinitions sources, UnaryOperator<String> valueEncoding) {
@@ -48,6 +48,10 @@ public final class PlaceholdersResolver {
 
   public PlaceholdersResolver(SourceDefinitions sources) {
     this(sources, UnaryOperator.identity(), true);
+  }
+
+  public static String resolveSkipUnmatched(String stringWithPlaceholders, SourceDefinitions sources) {
+    return new PlaceholdersResolver(sources, UnaryOperator.identity(), false).resolveAndEncodeInternal(stringWithPlaceholders);
   }
 
   public static String resolve(String stringWithPlaceholders, SourceDefinitions sources) {
@@ -67,8 +71,8 @@ public final class PlaceholdersResolver {
       resolved = resolveAndEncode(resolved, allPlaceholders, sourceDefinition);
     }
 
-    if (clearUnresolved) {
-      resolved = clearUnresolved(resolved);
+    if (clearUnmatched) {
+      resolved = clearUnmatched(resolved);
     }
 
     return resolved;
@@ -84,7 +88,7 @@ public final class PlaceholdersResolver {
     return resolved;
   }
 
-  private static String clearUnresolved(String resolved) {
+  private static String clearUnmatched(String resolved) {
     List<String> unresolved = getPlaceholders(resolved);
 
     for (String unresolvedPlaceholder : unresolved) {
