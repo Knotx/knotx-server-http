@@ -15,6 +15,7 @@
  */
 package io.knotx.server.common.placeholders;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ public class PlaceholdersResolverPlaceholderTest {
   @Test
   public void getPlaceholders_whenGivenUrlWithPlaceholders_expectPlaceholdersExtractedInArray() {
     List<String> placeholders =
-        PlaceholdersResolver.getPlaceholders("/dssds/{first.aa}/dsu/{second}");
+        new ArrayList<>(PlaceholdersResolver.getPlaceholders("/dssds/{first.aa}/dsu/{second}"));
     Assertions.assertArrayEquals(placeholders.toArray(), new String[]{"first.aa", "second"});
   }
 }

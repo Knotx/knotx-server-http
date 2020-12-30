@@ -15,11 +15,11 @@
  */
 package io.knotx.server.common.placeholders;
 
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -55,53 +55,38 @@ public final class PlaceholdersResolver {
   }
 
   public String resolve(String stringWithPlaceholders) {
-    String resolved = stringWithPlaceholders;
-    List<String> allPlaceholders = getPlaceholders(stringWithPlaceholders);
+    Set<String> currentPlaceholders = getPlaceholders(stringWithPlaceholders);
+
+    List<String> searchList = new ArrayList<>();
+    List<String> replaceList = new ArrayList<>();
 
     for (SourceDefinition sourceDefinition : sources.getSourceDefinitions()) {
-      List<String> placeholders = sourceDefinition.getPlaceholdersForSource(allPlaceholders);
-      resolved = resolveAndEncode(resolved, placeholders, sourceDefinition);
-      allPlaceholders.removeAll(placeholders);
+      Set<String> placeholders = sourceDefinition.getPlaceholdersForSource(currentPlaceholders);
+      for (String placeholder : placeholders) {
+        searchList.add(placeholder);
+        replaceList.add(getPlaceholderValue(sourceDefinition, placeholder));
+      }
+      currentPlaceholders.removeAll(placeholders);
     }
 
     if (clearUnmatched) {
-      resolved = clearUnmatched(resolved, allPlaceholders);
+      for (String placeholderLeft : currentPlaceholders) {
+        searchList.add(placeholderLeft);
+        replaceList.add("");
+      }
     }
 
-    return resolved;
+    String[] searchArray = searchList.stream().map(x -> "{" + x + "}").toArray(String[]::new);
+    String[] replaceArray = replaceList.stream().map(valueEncoding).toArray(String[]::new);
+
+    return StringUtils.replaceEach(stringWithPlaceholders, searchArray, replaceArray);
   }
 
-  private <T> String resolveAndEncode(String resolved, List<String> placeholders,
-      SourceDefinition<T> sourceDefinition) {
-    for (String placeholder : placeholders) {
-      resolved = replaceAndEncode(resolved, placeholder,
-          getPlaceholderValue(sourceDefinition, placeholder));
-    }
-    return resolved;
-  }
-
-  private static String clearUnmatched(String resolved,
-      List<String> placeholdersLeft) {
-
-    for (String unmatchedPlaceholder : placeholdersLeft) {
-      resolved = replace(resolved, unmatchedPlaceholder, "");
-    }
-    return resolved;
-  }
-
-  private String replaceAndEncode(String resolved, String placeholder, String value) {
-    return replace(resolved, placeholder, valueEncoding.apply(value));
-  }
-
-  private static String replace(String resolved, String placeholder, String value) {
-    return resolved.replace("{" + placeholder + "}", value);
-  }
-
-  protected static List<String> getPlaceholders(String serviceUri) {
+  protected static Set<String> getPlaceholders(String serviceUri) {
     return Arrays.stream(serviceUri.split("\\{"))
         .filter(str -> str.contains("}"))
         .map(str -> StringUtils.substringBefore(str, "}"))
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
   }
 
   private static <T> String getPlaceholderValue(SourceDefinition<T> sourceDefinition,
@@ -115,6 +100,7 @@ public final class PlaceholdersResolver {
   }
 
   static final class Builder {
+
     private SourceDefinitions sources;
     private UnaryOperator<String> valueEncoding = UnaryOperator.identity();
     private boolean clearUnmatched = true;
@@ -136,7 +122,8 @@ public final class PlaceholdersResolver {
 
     PlaceholdersResolver build() {
       if (sources == null) {
-        throw new IllegalStateException("Attempted to build PlaceholderResolver without setting sources");
+        throw new IllegalStateException(
+            "Attempted to build PlaceholderResolver without setting sources");
       }
       return new PlaceholdersResolver(sources, valueEncoding, clearUnmatched);
     }

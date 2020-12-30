@@ -16,10 +16,10 @@
 package io.knotx.server.common.placeholders;
 
 import io.knotx.server.api.context.ClientRequest;
+import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.MultiMap;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -164,7 +164,7 @@ class PlaceholdersResolverReplaceTest {
   @DisplayName("Expect not populated placeholder (but matched to a source) to be removed")
   void removeNotPopulatedPlaceholder() {
     final String notMatchedPlaceholder = "{param.notPopulated}";
-    String finalUri = resolverEncodingAndSkippingUnmatched(sourceWithParam("test"))
+    String finalUri = PlaceholdersResolver.create(sourceWithParam("test"))
         .resolve(notMatchedPlaceholder);
 
     Assertions.assertEquals("", finalUri);
@@ -189,6 +189,32 @@ class PlaceholdersResolverReplaceTest {
         .resolve(notMatchedPlaceholder);
 
     Assertions.assertEquals(notMatchedPlaceholder, finalUri);
+  }
+
+  /*
+    This test prevents the following chain of events:
+    - Input string "{source1.key1}-{source2.key2}" is given
+    - Source1 replaces "{source1.key1}" with "some-prefix-{source2.key2}-some-suffix"
+    - Source2 replaces "some-prefix-{source2.key2}-some-suffix" with "some-prefix-UNEXPECTED-some-suffix"
+    We want to eliminate this possibility, because the order in which the sources are evaluated is not deterministic.
+    This behaviour is an additional complexity which is not intuitive and hard to document.
+    Therefore we try to enforce a single layer of substitution by this test.
+   */
+  @Test
+  @DisplayName("Expect simultaneous substitution from different sources")
+  void simultanousSubstitution() {
+    final String singlePlaceholder = "{source1.key1}-{source2.key2}";
+
+    SourceDefinitions sources = SourceDefinitions.builder()
+        .addJsonObjectSource(new JsonObject().put("key1", "prefix-{source2.key2}-suffix"),
+            "source1")
+        .addJsonObjectSource(new JsonObject().put("key2", "ordinary-value"), "source2")
+        .build();
+
+    String finalUri = PlaceholdersResolver.create(sources)
+        .resolve(singlePlaceholder);
+
+    Assertions.assertEquals("prefix-{source2.key2}-suffix-ordinary-value", finalUri);
   }
 
   private SourceDefinitions sourceWithParam(String value) {

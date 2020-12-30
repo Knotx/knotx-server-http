@@ -15,10 +15,8 @@
  */
 package io.knotx.server.common.placeholders;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 
 class SourceDefinition<T> {
@@ -42,10 +40,10 @@ class SourceDefinition<T> {
     return substitutors;
   }
 
-  List<String> getPlaceholdersForSource(List<String> allPlaceholders) {
+  Set<String> getPlaceholdersForSource(Set<String> allPlaceholders) {
     return allPlaceholders.stream()
         .filter(this::startsWith)
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
   }
 
   private boolean startsWith(String placeholder) {
