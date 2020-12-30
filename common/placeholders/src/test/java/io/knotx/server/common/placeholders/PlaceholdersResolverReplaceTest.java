@@ -113,7 +113,10 @@ class PlaceholdersResolverReplaceTest {
     SourceDefinitions sourceDefinitions = SourceDefinitions.builder()
         .addClientRequestSource(httpRequest)
         .build();
-    String finalUri = PlaceholdersResolver.resolveAndEncode(servicePath, sourceDefinitions);
+
+    String finalUri = PlaceholdersResolver
+        .createEncoding(sourceDefinitions)
+        .resolve(servicePath);
 
     Assertions.assertEquals(expectedUri, finalUri);
   }
@@ -122,7 +125,8 @@ class PlaceholdersResolverReplaceTest {
   @DisplayName("Expect escaped value to be populated for the placeholder")
   void resolveAndEncode() {
     String finalUri = PlaceholdersResolver
-        .resolveAndEncode("{param.special}", sourceWithParam(STRING_WITH_SPECIAL_CHARS));
+        .createEncoding(sourceWithParam(STRING_WITH_SPECIAL_CHARS))
+        .resolve("{param.special}");
 
     Assertions.assertEquals(ESCAPED_STRING_WITH_SPECIAL_CHARS, finalUri);
   }
@@ -131,7 +135,8 @@ class PlaceholdersResolverReplaceTest {
   @DisplayName("Expect value to be populated for the placeholder but not escaped")
   void resolveAndDoNotEncode() {
     String finalUri = PlaceholdersResolver
-        .resolve("{param.special}", sourceWithParam(STRING_WITH_SPECIAL_CHARS));
+        .create(sourceWithParam(STRING_WITH_SPECIAL_CHARS))
+        .resolve("{param.special}");
 
     Assertions.assertEquals(STRING_WITH_SPECIAL_CHARS, finalUri);
   }
@@ -141,7 +146,8 @@ class PlaceholdersResolverReplaceTest {
   @DisplayName("Expect placeholder enclosed with extra brackets to be interpolated")
   void extraBracketsNotReplaced() {
     String finalUri = PlaceholdersResolver
-        .resolve("{\"json-key\": \"{param.special}\"}", sourceWithParam("test"));
+        .create(sourceWithParam("test"))
+        .resolve("{\"json-key\": \"{param.special}\"}");
 
     Assertions.assertEquals("{\"json-key\": \"test\"}", finalUri);
   }
@@ -150,7 +156,9 @@ class PlaceholdersResolverReplaceTest {
   @DisplayName("Expect not populated placeholder (but matched to a source) to be removed")
   void removeNotPopulatedPlaceholder() {
     final String notMatchedPlaceholder = "{param.notPopulated}";
-    String finalUri = PlaceholdersResolver.resolveSkipUnmatched(notMatchedPlaceholder, sourceWithParam("test"));
+    String finalUri = PlaceholdersResolver
+        .createEncodingAndSkippingUnmatched(sourceWithParam("test"))
+        .resolve(notMatchedPlaceholder);
 
     Assertions.assertEquals("", finalUri);
   }
@@ -159,7 +167,9 @@ class PlaceholdersResolverReplaceTest {
   @DisplayName("Expect unmatched placeholders to be removed by default")
   void removeUnmatchedPlaceholder() {
     final String notMatchedPlaceholder = "{notMatchedParam}";
-    String finalUri = PlaceholdersResolver.resolve(notMatchedPlaceholder, sourceWithParam("test"));
+    String finalUri = PlaceholdersResolver
+        .create(sourceWithParam("test"))
+        .resolve(notMatchedPlaceholder);
 
     Assertions.assertEquals("", finalUri);
   }
@@ -168,7 +178,9 @@ class PlaceholdersResolverReplaceTest {
   @DisplayName("Expect unmatched placeholders to be left as-is if option configured")
   void leaveUnresolvedPlaceholders() {
     final String notMatchedPlaceholder = "{notMatchedParam}";
-    String finalUri = PlaceholdersResolver.resolveSkipUnmatched(notMatchedPlaceholder, sourceWithParam("test"));
+    String finalUri = PlaceholdersResolver
+        .createEncodingAndSkippingUnmatched(sourceWithParam("test"))
+        .resolve(notMatchedPlaceholder);
 
     Assertions.assertEquals(notMatchedPlaceholder, finalUri);
   }

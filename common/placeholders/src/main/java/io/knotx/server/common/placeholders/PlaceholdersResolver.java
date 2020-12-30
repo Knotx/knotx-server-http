@@ -17,9 +17,6 @@ package io.knotx.server.common.placeholders;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -68,18 +65,10 @@ public final class PlaceholdersResolver {
   }
 
   public static String resolveSkipUnmatched(String stringWithPlaceholders, SourceDefinitions sources) {
-    return createEncodingAndSkippingUnmatched(sources).resolveAndEncodeInternal(stringWithPlaceholders);
+    return createEncodingAndSkippingUnmatched(sources).resolve(stringWithPlaceholders);
   }
 
-  public static String resolve(String stringWithPlaceholders, SourceDefinitions sources) {
-    return create(sources).resolveAndEncodeInternal(stringWithPlaceholders);
-  }
-
-  public static String resolveAndEncode(String stringWithPlaceholders, SourceDefinitions sources) {
-    return createEncoding(sources).resolveAndEncodeInternal(stringWithPlaceholders);
-  }
-
-  private String resolveAndEncodeInternal(String stringWithPlaceholders) {
+  public String resolve(String stringWithPlaceholders) {
     String resolved = stringWithPlaceholders;
     List<String> allPlaceholders = getPlaceholders(stringWithPlaceholders);
 
