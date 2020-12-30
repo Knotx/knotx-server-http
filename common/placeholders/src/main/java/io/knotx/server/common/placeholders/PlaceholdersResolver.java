@@ -99,28 +99,28 @@ public final class PlaceholdersResolver {
         .orElse("");
   }
 
-  static final class Builder {
+  public static final class Builder {
 
     private SourceDefinitions sources;
     private UnaryOperator<String> valueEncoding = UnaryOperator.identity();
     private boolean clearUnmatched = true;
 
-    Builder withSources(SourceDefinitions sources) {
+    public Builder withSources(SourceDefinitions sources) {
       this.sources = sources;
       return this;
     }
 
-    Builder encodeValues() {
+    public Builder encodeValues() {
       valueEncoding = Encoder::encode;
       return this;
     }
 
-    Builder leaveUnmatched() {
+    public Builder leaveUnmatched() {
       clearUnmatched = false;
       return this;
     }
 
-    PlaceholdersResolver build() {
+    public PlaceholdersResolver build() {
       if (sources == null) {
         throw new IllegalStateException(
             "Attempted to build PlaceholderResolver without setting sources");
