@@ -24,7 +24,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
-public final class PlaceholdersResolver {
+public class PlaceholdersResolver {
 
   private final SourceDefinitions sources;
   private final UnaryOperator<String> valueEncoding;

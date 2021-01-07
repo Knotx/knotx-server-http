@@ -37,6 +37,8 @@ dependencies {
     implementation(group = "com.google.guava", name = "guava")
 
     testImplementation("io.knotx:knotx-junit5:${project.version}")
+    testImplementation(group = "org.mockito", name = "mockito-core")
+    testImplementation(group = "org.mockito", name = "mockito-junit-jupiter")
     implementation(group = "io.vertx", name = "vertx-core")
     implementation(group = "io.vertx", name = "vertx-rx-java2")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
