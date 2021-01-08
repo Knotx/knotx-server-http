@@ -20,6 +20,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,7 +42,11 @@ class JsonResolverTest {
 
   private static final JsonObject NESTED_JSON = new JsonObject()
       .put("key1", "{payload.value1}")
-      .put("key2", "");
+      .put("key2", new JsonArray()
+          .add(new JsonObject().put("key3", true))
+          .add(15)
+          .add("{placeholder}")
+      );
 
   @Mock
   private PlaceholdersResolver resolver;
@@ -62,5 +67,12 @@ class JsonResolverTest {
     verify(resolver, times(12)).resolve(anyString());
   }
 
-  // TODO: more tests
+  @Test
+  @DisplayName("Expect 5 calls to resolver for 5 string values")
+  void shouldCallResolverForEachPlaceholderForNested() {
+    tested.resolveJson(NESTED_JSON);
+
+    verify(resolver, times(5)).resolve(anyString());
+  }
+
 }

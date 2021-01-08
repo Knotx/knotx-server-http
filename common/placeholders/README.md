@@ -17,16 +17,31 @@ This module contains client request placeholders substitutors.
 - `{slingUri.suffix}` - is the client requests sling suffix. From `/a/b/c.sel.it.html/suffix.html?query` it will produce `/suffix.html`
 - `{payload.thumbnail.extension}` - is the json value with custom prefix  - for instance `payload` in this example.
 
-    ```javascript
+    ```json
     {
       "thumbnail" : {
         "extension" : "png"
       }
     }
     ```
+  
+Additional sources can also be included, see for example usage in `knotx-fragments` repository.
 
-`PlaceholdersResolver` provides two methods for performing substitution: `resolve` which performs a direct substitution, and `resolveAndEncode` which also performs encoding.
+## Configuration
+`PlaceholdersResolver` is configurable:
+- it is possible to enable/disable clearing unmatched placeholders to an empty string
+- it is possible to enable/disable encoding
 
-When calling `resolveAndEncode`, all placeholders are substituted with encoded values according to the RFC standard. However, there are two exceptions:
+When clearing unmatched placeholders is enabled, all placeholders that are not matched to a source, e.g. `{not.existent}` are replaced by an empty string.
+When this option is disabled, these placeholders are left as-is.
+Please note that placeholders that match a source but are not defined within it (like `{params.not-existent}`) are always replaced with an empty string. 
+
+When encoding is enabled, all placeholders are substituted with encoded values according to the RFC standard. However, there are two exceptions:
 - Space character is substituted by `%20` instead of `+`.
 - Slash character `/` remains as it is.
+
+## Resolving JSON objects
+
+`JsonResolver` is an utility class for resolving placeholders in JSON objects.
+It traverses the JSON structure (objects and arrays) in order to replace nested placeholders in string values.
+Requires configured `PlaceholdersResolver` to work.
