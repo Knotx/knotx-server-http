@@ -40,12 +40,7 @@ dependencies {
     testImplementation(group = "org.mockito", name = "mockito-junit-jupiter")
 }
 
-tasks {
-    named<RatTask>("rat") {
-        excludes.addAll(listOf("*.md", "**/*.md", "**/build/*", "**/out/*", "**/generated/*", "**/*.adoc"))
-    }
-    getByName("build").dependsOn("rat")
-}
+tasks.getByName("sourcesJar").dependsOn("compileJava")
 
 publishing {
     publications {

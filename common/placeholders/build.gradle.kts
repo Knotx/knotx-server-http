@@ -48,7 +48,9 @@ tasks {
     named<RatTask>("rat") {
         excludes.addAll(listOf("*.md", "**/*.md", "**/build/*", "**/out/*", "**/generated/*", "**/*.adoc"))
     }
+    getByName("rat").dependsOn("compileJava")
     getByName("build").dependsOn("rat")
+    getByName("sourcesJar").dependsOn("compileJava")
 }
 
 publishing {

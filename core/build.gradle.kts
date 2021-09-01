@@ -56,12 +56,7 @@ sourceSets.named("test") {
     resources.srcDir("../conf")
 }
 
-tasks {
-    named<RatTask>("rat") {
-        excludes.addAll(listOf("*.md", "**/*.md", "**/build/*", "**/out/*", "**/generated/*", "**/*.adoc", "**/security/keystore.jceks"))
-    }
-    getByName("build").dependsOn("rat")
-}
+tasks.getByName("sourcesJar").dependsOn("compileJava")
 
 publishing {
     publications {
