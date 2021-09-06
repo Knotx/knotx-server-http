@@ -42,14 +42,16 @@ dependencies {
     implementation(group = "io.vertx", name = "vertx-circuit-breaker")
 
     testImplementation(group = "io.vertx", name = "vertx-auth-jwt")
-    testImplementation(group = "io.vertx", name = "vertx-auth-shiro")
+
+    // FIXME https://github.com/Knotx/knotx-server-http/issues/76
+    // testImplementation(group = "io.vertx", name = "vertx-auth-shiro")
 
     testAnnotationProcessor(platform("io.knotx:knotx-dependencies:${project.version}"))
     testImplementation("io.knotx:knotx-junit5:${project.version}")
     testImplementation("io.knotx:knotx-launcher:${project.version}")
     testImplementation(group = "org.mockito", name = "mockito-core")
     testImplementation(group = "org.mockito", name = "mockito-junit-jupiter")
-    testImplementation(group = "io.rest-assured", name = "rest-assured", version = "3.3.0")
+    testImplementation(group = "io.rest-assured", name = "rest-assured", version = "4.4.0")
 }
 
 sourceSets.named("test") {
