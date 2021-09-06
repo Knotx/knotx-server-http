@@ -12,5 +12,5 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-io.knotx.server.security.BasicAuthHandlerFactory
+#io.knotx.server.security.BasicAuthHandlerFactory
 io.knotx.server.security.JwtAuthHandlerFactory

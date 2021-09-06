@@ -28,14 +28,15 @@ paths:
       responses:
         default:
           description: Public endpoint that lists books
-  /protected/basic:
-    get:
-      operationId: listBooksWithBasicAuth
-      security:
-        - basicAuthBooks: []
-      responses:
-        default:
-          description: Basic auth protected endpoint that lists books
+# FIXME https://github.com/Knotx/knotx-server-http/issues/76
+#  /protected/basic:
+#    get:
+#      operationId: listBooksWithBasicAuth
+#      security:
+#        - basicAuthBooks: []
+#      responses:
+#        default:
+#          description: Basic auth protected endpoint that lists books
   /protected/jwt:
     get:
       summary: List all books
@@ -48,9 +49,10 @@ paths:
 
 components:
   securitySchemes:
-    basicAuthBooks:
-      type: http
-      scheme: basic
+# FIXME https://github.com/Knotx/knotx-server-http/issues/76
+#    basicAuthBooks:
+#      type: http
+#      scheme: basic
     jwtAuthBooks:
       type: http
       scheme: bearer

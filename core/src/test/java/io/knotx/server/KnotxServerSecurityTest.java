@@ -58,6 +58,8 @@ class KnotxServerSecurityTest {
 
   @Test
   @DisplayName("Expect Ok when basic authentication passes.")
+  @Disabled
+  // FIXME https://github.com/Knotx/knotx-server-http/issues/76
   void basicAuthenticationSuccess(Vertx vertx, @RandomPort Integer globalServerPort) {
     // @formatter:off
     given().
@@ -72,6 +74,8 @@ class KnotxServerSecurityTest {
 
   @Test
   @DisplayName("Expect Unauthorized when basic authentication fails.")
+  @Disabled
+  // FIXME https://github.com/Knotx/knotx-server-http/issues/76
   void basicAuthenticationFailure(Vertx vertx, @RandomPort Integer globalServerPort) {
     // @formatter:off
     given().
