@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.nosphere.apache.rat.RatTask
-
 plugins {
     id("io.knotx.java-library")
     id("io.knotx.codegen")
@@ -51,7 +49,7 @@ dependencies {
     testImplementation("io.knotx:knotx-launcher:${project.version}")
     testImplementation(group = "org.mockito", name = "mockito-core")
     testImplementation(group = "org.mockito", name = "mockito-junit-jupiter")
-    testImplementation(group = "io.rest-assured", name = "rest-assured", version = "4.4.0")
+    testImplementation(group = "io.rest-assured", name = "rest-assured", version = "5.4.0")
 }
 
 sourceSets.named("test") {
