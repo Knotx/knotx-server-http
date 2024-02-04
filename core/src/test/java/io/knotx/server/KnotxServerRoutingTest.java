@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Tests are created according to Open API 3.0 Spec: <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md">...</a>
+ * Tests are created according to <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md">Open API 3.0 Spec</a>
  */
 @ExtendWith(KnotxExtension.class)
 @KnotxApplyConfiguration({"server.conf", "server-random-port.conf", "routing/routing.conf"})
