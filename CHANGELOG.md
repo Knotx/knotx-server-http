@@ -3,6 +3,8 @@ All notable changes to `knotx-server-http` will be documented in this file.
 
 ## Unreleased
 List of changes that are finished but not yet released in any final version.
+                
+## 2.4.0
 - [PR-78](https://github.com/Knotx/knotx-server-http/pull/78) Upgrade Gradle to 7.6.3, Rest-Assured
 
 ## 2.3.1
